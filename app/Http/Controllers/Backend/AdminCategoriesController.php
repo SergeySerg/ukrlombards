@@ -153,6 +153,9 @@ class AdminCategoriesController extends Controller {
 		//Var article_parent
 		$category_parent = $admin_category['parent_id'];
 
+		//Var article_parent
+		$article_parent = $admin_category['article_parent'];
+
 		//create folder with id
 		Storage::makeDirectory('upload/categories/' . $admin_category->id, '0777', true, true);
 
@@ -162,7 +165,7 @@ class AdminCategoriesController extends Controller {
 		//Decode attributes from articles DB
 		$attributes_fields = $fields->attributes;
 		return view('backend.categories.edit')
-			->with(compact('langs','admin_category','type','attributes_fields','category_parent'))
+			->with(compact('langs','admin_category','type','attributes_fields','category_parent','article_parent'))
 			->with(['action_method' => 'put']);
 
 		/*return view('backend.categories.edit', [

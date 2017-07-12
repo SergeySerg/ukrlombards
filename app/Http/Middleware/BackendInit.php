@@ -29,8 +29,8 @@ class BackendInit {
 			->orderBy('priority','desc')
 			->get();
 		//dd($admin_categories);
-		Debugbar::info($admin_categories);
-		Debugbar::addMeasure('now', LARAVEL_START, microtime(true));
+		/*Debugbar::info($admin_categories);
+		Debugbar::addMeasure('now', LARAVEL_START, microtime(true));*/
 		//Подключение в Backend url типа
 		$url = url('adminTai0a');
 		//Artisan::call('view:clear');

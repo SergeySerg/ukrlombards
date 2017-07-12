@@ -15,5 +15,6 @@ return [
 
     'welcome' => 'Welcome',
     'comments' => 'Reviews',
+    'parent' => 'Attitude to records'
 
 ];

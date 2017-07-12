@@ -18,6 +18,7 @@ use Image;
 use League\Flysystem\Config;
 //use Illuminate\Contracts\Routing\ResponseFactory;
 //use Illuminate\Routing\Controller;
+use Debugbar;
 
 class AdminArticlesController extends Controller {
 
@@ -71,10 +72,10 @@ class AdminArticlesController extends Controller {
 	{
 		$langs = Lang::activelangs()->get();
 		$admin_category = Category::where("link","=","$type")->first();
-
+		Debugbar::info($admin_category);
 		//Get group attributes for article_parent
 		$article_group =  Article::where('category_id',$admin_category['article_parent'])->get();
-
+		Debugbar::info($article_group);
 		//list of base and attributes from Category
 		$fields = json_decode($admin_category->fields);
 
@@ -186,17 +187,17 @@ class AdminArticlesController extends Controller {
 
 		//Var article_id
 		$article_id = $admin_article['article_id'];
-
+		Debugbar::info($article_id);
 		//Decode attributes from articles DB
 		$attributes = json_decode($admin_article->attributes, true);
 		//dd($attributes);
 		//$attributes = json_decode($admin_article->attributes);
 
-		$admin_category = Category::where("link","=","$type")->first();
+		$admin_category = Category::where("link", "$type")->first();
 
 		//Get group attributes for article_parent
 		$article_group =  Article::where('category_id',$admin_category['article_parent'])->get();
-		//dd($article_group);
+		Debugbar::info($article_group);
 
 		//Decode base and attributes from categories DB
 		$fields = json_decode($admin_category->fields);

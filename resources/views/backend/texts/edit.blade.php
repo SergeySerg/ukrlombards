@@ -103,7 +103,7 @@
                                     {{--<input type="text" name="lang_active" value='{{$admin_text->lang_active}}' placeholder="1 або 0" />--}}
                                     <select name="lang_active">
                                         <option>
-                                        </option><option value="1" @if($admin_text->lang_active)selected="selected"@endif>На днескольки языках
+                                        </option><option value="1" @if($admin_text->lang_active)selected="selected"@endif>На несколькиx языках
                                         </option><option value="0" @if(!$admin_text->lang_active)selected="selected"@endif>Одно значение для всех языков
                                         </option></select>
                                 </div>

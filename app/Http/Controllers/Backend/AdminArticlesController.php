@@ -184,7 +184,7 @@ class AdminArticlesController extends Controller {
 
 		$langs = Lang::activelangs()->get();
 		$admin_article = Article::where("id","=","$id")->first();
-
+		Debugbar::info($admin_article);
 		//Var article_id
 		$article_id = $admin_article['article_id'];
 		Debugbar::info($article_id);

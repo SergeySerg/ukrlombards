@@ -45,12 +45,27 @@ class ArticleController extends Controller {
 	 * @return Response
 	 */
 	public function show($lang, $type, $id)	{
-
 		$article = Article::where('id', $id)
 		->activearticles() // use scopeActiveArticles in Article Model
 		->first();
-		//dd($article);
-		return view('frontend.single_news')->with(compact('article'));
+		$article_children = $article->article_children()->activearticles()->get();
+		//$article_parent = $article->article_parent();
+		//dd($article_parent);
+		$lombards = [];
+		foreach ($article_children as $key => $item ) {
+			$lombards[$key] = [
+				'lombard_address' => rtrim(strip_tags($item->getAttributeTranslate('Адреса'))),
+				'lombard_name' => $item->getTranslate('title')
+			];
+		}
+		array_push($lombards, [
+			'lombard_address' => rtrim(strip_tags($article->getAttributeTranslate('Адреса'))),
+			'lombard_name' => $article->getTranslate('title')
+		]);
+		//dd($lombards);
+		$lombards  =  json_encode($lombards,true);
+		//dd($lombards);
+		return view('frontend.branches')->with(compact('article','article_children','lombards'));
 
 
 	}

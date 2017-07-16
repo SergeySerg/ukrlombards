@@ -13,6 +13,7 @@ return [
 	|
 	*/
 	'main' => 'Головна',
+	'department' => 'Відділення',
 	'portfolio' => 'Портфоліо',
 	'all_portfolio' => 'всі роботи',
 	'all' => 'Всі',

@@ -21,14 +21,12 @@
                             <a class="btn btn-lg btn-primary" target="_blank" href="{{$slider_item->getAttributeTranslate('Ссылка на кнопке') ? $slider_item->getAttributeTranslate('Ссылка на кнопке') : '#' }}" role="button">{{$slider_item->getAttributeTranslate('Текст в кнопке') ? $slider_item->getAttributeTranslate('Текст в кнопке') : ' ' }}</a>
                         </p>
                     </div>
-{{--
                     <div class="carousel-image wow zoomIn">
                         <img src="{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}" alt="{{ $slider_item->getTranslate('title') }}"/>
                     </div>
---}}
                 </div>
                 <!-- Set background for slide in css -->
-                <div class="header-back one" style="background-image: url('{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}')"></div>
+                <div class="header-back one" style="background-image: url('{{ asset("/img/frontend/money.jpg" ) }}')"></div>
 
             </div>
             @endforeach
@@ -56,7 +54,7 @@
                 @foreach($pawnshop as $pawnshop_item)
                     <div class="col-lg-6 features-text">
                         <a href="/{{ App::getLocale() }}/pawnshop/{{$pawnshop_item->id}}" class="lombard-item clearfix">
-                            <div class="flex_img-wrap pull-left"><img src="{{ asset( $pawnshop_item->getAttributeTranslate('Логотип') ? $pawnshop_item->getAttributeTranslate('Логотип') : "upload/articles/no-img.png") }}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
+                            <div class="flex_img-wrap pull-left"><img src="{{ asset($pawnshop_item->getAttributeTranslate('Логотип'))}}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
                             <small>Код ЄДРПОУ: {{ $pawnshop_item->getAttributeTranslate('Код ЄДРПОУ') }}</small>
                             <h2>{{ $pawnshop_item->getTranslate('title') }}</h2>
                             <small>{{ $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') ? '('. $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') . ')' : " "   }} {{ $pawnshop_item->getAttributeTranslate('Телефон') }}</small>

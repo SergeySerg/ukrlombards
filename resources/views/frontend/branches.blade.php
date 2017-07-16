@@ -99,7 +99,7 @@
                 @foreach($article_children as $item)
                     <div class="col-sm-4">
                     <div class="team-member">
-                        <h3>Відділення <span class="navy">№{{ $item->getAttributeTranslate('Відділення') }}</span> </h3>
+                        <h3>{{ trans('base.department') }} <span class="navy">№{{ $item->getAttributeTranslate('Відділення') }}</span> </h3>
                         <h2>{!! $item->getAttributeTranslate('Адреса') ? $item->getAttributeTranslate('Адреса') : " "  !!}</h2>
                         <small>Код ЄДРПОУ: {{ $item->getAttributeTranslate('Код ЄДРПОУ') }}</small>
                         <p>{{ $item->getTranslate('title') }}</p>

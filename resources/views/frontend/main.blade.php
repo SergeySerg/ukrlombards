@@ -26,7 +26,7 @@
                     </div>
                 </div>
                 <!-- Set background for slide in css -->
-                <div class="header-back one" style="background-image: url('{{ asset("/img/frontend/money.jpg" ) }}')"></div>
+                <div class="header-back one" style="background-image: url('{{ asset("/img/frontend/zoloto1.jpg" ) }}')"></div>
 
             </div>
             @endforeach

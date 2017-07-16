@@ -29,7 +29,7 @@ class Translate extends Model {
         if(isset($attributes[$key]) AND $attributes[$key]){
             $pieces = explode("@|;", $attributes[$key]);
             //DD($pieces);
-            if(count($pieces) < count($langs) )
+            if(count($pieces) < count($langs) && count($langs) == 2)
                 return $attributes[$key];
             if(!$current_lang){
                 $current_lang = App::getLocale();

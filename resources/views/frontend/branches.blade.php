@@ -83,7 +83,7 @@
                 </div>
                 <div class="col-lg-6 text-center wow fadeInRight">
                     <div class="flex_img-item-wrap">
-                        <img src="{{ asset( $article->getAttributeTranslate('Логотип') ? $article->getAttributeTranslate('Логотип') : "upload/articles/no-img.png") }}" alt="{{ $article->getTranslate('title') }}" class="img-responsive flex_img-responsive">
+                        <img src="{{ asset( $article->getAttributeTranslate('Логотип') ? $article->getAttributeTranslate('Логотип') : "/img/frontend/no-img.png") }}" alt="{{ $article->getTranslate('title') }}" class="img-responsive flex_img-responsive">
                     </div>
                 </div>
             </div>
@@ -100,9 +100,10 @@
                     <div class="col-sm-4">
                     <div class="team-member">
                         <h3>{{ trans('base.department') }} <span class="navy">№{{ $item->getAttributeTranslate('Відділення') }}</span> </h3>
-                        <h2>{!! $item->getAttributeTranslate('Адреса') ? $item->getAttributeTranslate('Адреса') : " "  !!}</h2>
+                        <h2>{{ $item->getAttributeTranslate('Адреса') ? $item->getAttributeTranslate('Адреса') : " "  }}</h2>
                         <small>Код ЄДРПОУ: {{ $item->getAttributeTranslate('Код ЄДРПОУ') }}</small>
                         <p>{{ $item->getTranslate('title') }}</p>
+                        <p>{!! $item->getTranslate('short_description') !!}</p>
                         {{--<p> Пн. — Пт.: 9:00 — 20:00<br>
                             Сб.: 9:00 — 20:00<br>
                             Вс.: 9:00 — 19:00</p>--}}

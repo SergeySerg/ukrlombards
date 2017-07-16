@@ -2,8 +2,6 @@
 
 @section('content')
 
-
-
     <div id="inSlider" class="carousel carousel-fade" data-ride="carousel">
         <ol class="carousel-indicators">
             @foreach($slider as $key => $slider_item)
@@ -17,17 +15,15 @@
                     <div class="carousel-caption">
                         <h1>{{ $slider_item->getTranslate('title') }}</h1>
                         {!! $slider_item->getTranslate('short_description') ? $slider_item->getTranslate('short_description') : " "  !!}
-                        <p>
-                            <a class="btn btn-lg btn-primary" target="_blank" href="{{$slider_item->getAttributeTranslate('Ссылка на кнопке') ? $slider_item->getAttributeTranslate('Ссылка на кнопке') : '#' }}" role="button">{{$slider_item->getAttributeTranslate('Текст в кнопке') ? $slider_item->getAttributeTranslate('Текст в кнопке') : ' ' }}</a>
-                        </p>
-                    </div>
-                    <div class="carousel-image wow zoomIn">
-                        <img src="{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}" alt="{{ $slider_item->getTranslate('title') }}"/>
+                        @if($slider_item->getAttributeTranslate('Текст в кнопке') != "")
+                            <p>
+                                <a class="btn btn-lg btn-primary" target="_blank" href="{{$slider_item->getAttributeTranslate('Ссылка на кнопке') ? $slider_item->getAttributeTranslate('Ссылка на кнопке') : '#' }}" role="button">{{$slider_item->getAttributeTranslate('Текст в кнопке') ? $slider_item->getAttributeTranslate('Текст в кнопке') : ' ' }}</a>
+                            </p>
+                        @endif
                     </div>
                 </div>
                 <!-- Set background for slide in css -->
-                <div class="header-back one" style="background-image: url('{{ asset("/img/frontend/zoloto1.jpg" ) }}')"></div>
-
+                <div class="header-back one" style="background-image: url('{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}')"></div>
             </div>
             @endforeach
         </div>
@@ -54,23 +50,17 @@
                 @foreach($pawnshop as $pawnshop_item)
                     <div class="col-lg-6 features-text">
                         <a href="/{{ App::getLocale() }}/pawnshop/{{$pawnshop_item->id}}" class="lombard-item clearfix">
-                            <div class="flex_img-wrap pull-left"><img src="{{ asset($pawnshop_item->getAttributeTranslate('Логотип') ? $pawnshop_item->getAttributeTranslate('Логотип') : "upload/articles/no-img.png") }}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
+                            <div class="flex_img-wrap pull-left"><img src="{{ asset($pawnshop_item->getAttributeTranslate('Логотип') ? $pawnshop_item->getAttributeTranslate('Логотип') : "/img/frontend/no-img.png") }}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
                             <small>Код ЄДРПОУ: {{ $pawnshop_item->getAttributeTranslate('Код ЄДРПОУ') }}</small>
                             <h2>{{ $pawnshop_item->getTranslate('title') }}</h2>
-                            <small>{{ $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') ? '('. $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') . ')' : " "   }} {{ $pawnshop_item->getAttributeTranslate('Телефон') }}</small>
-                            {!! $pawnshop_item->getAttributeTranslate('Адреса') ? $pawnshop_item->getAttributeTranslate('Адреса') : " "  !!}
+                            <small>{{ $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') ? '('. $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') . ')' : " "   }} {{ $pawnshop_item->getAttributeTranslate('Телефон') }}</small></br>
+                            {!! $pawnshop_item->getAttributeTranslate('Адреса') ? $pawnshop_item->getAttributeTranslate('Адреса') : " "  !!}</br>
                             <small>{{ $pawnshop_item->getAttributeTranslate('E-mail') }}</small>
                         </a>
                     </div>
                 @endforeach
-
             </div>
-
         </div>
-
     </section>
-
-
-
 
 @endsection

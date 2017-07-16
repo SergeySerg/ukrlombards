@@ -66,7 +66,7 @@
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav navbar-right navbar-brand langs">
 					@foreach($langs as $lang)
-						<li><a href="{{str_replace(url(App::getLocale()), url($lang->lang), Request::url())}}">{{$lang->lang}}</a></li>
+						<li @if(App::getLocale() == $lang->lang)class="active"@endif><a href="{{str_replace(url(App::getLocale()), url($lang->lang), Request::url())}}">{{$lang->lang}}</a></li>
 					@endforeach
 				</ul>
 			</div>
@@ -81,30 +81,28 @@
 		<div class="row m-b-lg">
 			<div class="col-lg-12 text-center">
 				<div class="navy-line"></div>
-				<h1>Contact Us</h1>
-				<p>Donec sed odio dui. Etiam porta sem malesuada magna mollis euismod.</p>
+				<h1>{{trans('base.contacts')}}</h1>
 			</div>
 		</div>
 		<div class="row m-b-lg">
 			<div class="col-lg-3 col-lg-offset-3">
 				<address>
-					<strong><span class="navy">Company name, Inc.</span></strong><br/>
-					795 Folsom Ave, Suite 600<br/>
-					San Francisco, CA 94107<br/>
-					<abbr title="Phone">P:</abbr> (123) 456-7890
+					<strong><span class="navy">ЛОМБАРДИ.UA</span></strong><br/>
+					{!! $texts->get('address')!!}</br>
+					<abbr title="{{trans('base.soc')}}">Т:</abbr> {{$texts->get('telephone')}}
 				</address>
 			</div>
 			<div class="col-lg-4">
 				<p class="text-color">
-					Consectetur adipisicing elit. Aut eaque, totam corporis laboriosam veritatis quis ad perspiciatis, totam corporis laboriosam veritatis, consectetur adipisicing elit quos non quis ad perspiciatis, totam corporis ea,
+					{!! $texts->get('footer_text')!!}
 				</p>
 			</div>
 		</div>
 		<div class="row">
 			<div class="col-lg-12 text-center">
-				<a href="mailto:test@email.com" class="btn btn-primary">Send us mail</a>
+				<a href="mailto:{{ $texts->get('mail')}}" class="btn btn-primary">{{trans('base.write_mail')}}</a>
 				<p class="m-t-sm">
-					Or follow us on social platform
+					{{trans('base.soc')}}
 				</p>
 				<ul class="list-inline social-icon">
 					<li><a href="#"><i class="fa fa-twitter"></i></a>

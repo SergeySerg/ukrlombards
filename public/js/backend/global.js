@@ -320,9 +320,7 @@ $(function(){
 /*show-hide image in category*/
     $('.image-close, .image-edit').on('click', function(event){
         event.preventDefault();
-        $('input[name=img_status]').prop('value', false);
-
-
+        //$('input[name=img_status]').prop('value', false);
         $(this).parents('.control-group').find('.show-image').hide();
         $(this).parents('.control-group').find('.show-image input[type=hidden]').removeAttr('value');
         $(this).parents('.control-group').find('.image-upload').show();
@@ -330,6 +328,16 @@ $(function(){
         //$('#image-upload').show();
     });
 /*show-hide image in category*/
+
+    /*show-hide image in ARTICLE[img]*/
+    $('#image-close,#image-edit').on('click', function(event){
+        event.preventDefault();
+        $('input[name=img_status]').prop('value',false);
+        $('#show-image').hide();
+        $('#image-upload').show();
+    });
+    /*show-hide image in ARTICLE[img]*/
+
     init_wysiwyg();
 });
 

@@ -54,7 +54,7 @@
                 @foreach($pawnshop as $pawnshop_item)
                     <div class="col-lg-6 features-text">
                         <a href="/{{ App::getLocale() }}/pawnshop/{{$pawnshop_item->id}}" class="lombard-item clearfix">
-                            <div class="flex_img-wrap pull-left"><img src="{{ asset($pawnshop_item->getAttributeTranslate('Логотип'))}}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
+                            <div class="flex_img-wrap pull-left"><img src="{{ asset($pawnshop_item->getAttributeTranslate('Логотип')) ? $pawnshop_item->getAttributeTranslate('Логотип') : "upload/articles/no-img.png" }}" alt="{{ $pawnshop_item->getTranslate('title') }}"></div>
                             <small>Код ЄДРПОУ: {{ $pawnshop_item->getAttributeTranslate('Код ЄДРПОУ') }}</small>
                             <h2>{{ $pawnshop_item->getTranslate('title') }}</h2>
                             <small>{{ $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') ? '('. $pawnshop_item->getAttributeTranslate('Міжміський телефонний код') . ')' : " "   }} {{ $pawnshop_item->getAttributeTranslate('Телефон') }}</small>

@@ -21,12 +21,14 @@
                             <a class="btn btn-lg btn-primary" target="_blank" href="{{$slider_item->getAttributeTranslate('Ссылка на кнопке') ? $slider_item->getAttributeTranslate('Ссылка на кнопке') : '#' }}" role="button">{{$slider_item->getAttributeTranslate('Текст в кнопке') ? $slider_item->getAttributeTranslate('Текст в кнопке') : ' ' }}</a>
                         </p>
                     </div>
+{{--
                     <div class="carousel-image wow zoomIn">
                         <img src="{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}" alt="{{ $slider_item->getTranslate('title') }}"/>
                     </div>
+--}}
                 </div>
                 <!-- Set background for slide in css -->
-                <div class="header-back one" style="background-image: url('/img/money.jpg');"></div>
+                <div class="header-back one" style="background-image: url('{{ asset( $slider_item->getAttributeTranslate('Картинка слайда')) }}')"></div>
 
             </div>
             @endforeach

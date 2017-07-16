@@ -2,6 +2,7 @@
 <html lang="{{ App::getLocale() }}">
 <head>
 	<meta charset="utf-8">
+	<title>Ломбарди</title>
 {{--	<title>@if($categories_data[$type]->getTranslate('meta_title')){{ $categories_data[$type]->getTranslate('meta_title') }} @else Ломбарды @endif</title>
 	<meta name="description" content="@if($categories_data[$type]->getTranslate('meta_description')){{ $categories_data[$type]->getTranslate('meta_description') }} @else Каталог ломбардов Украины  @endif">
 	<meta name="keywords" content="@if($categories_data[$type]->getTranslate('meta_keywords')){{ $categories_data[$type]->getTranslate('meta_keywords') }} @else Ломбарды @endif">--}}
@@ -11,6 +12,7 @@
 
 
 	<link rel="shortcut icon" href="{{ asset('/img/favicon/favicon.ico') }}?ver={{ $version }}" type="image/x-icon">
+	<link rel="shortcut icon" href="{{ asset('/img/favicon/favicon.png') }}?ver={{ $version }}" type="image/x-icon">
 	<link rel="apple-touch-icon" href="{{ asset('/img/favicon/apple-touch-icon.png') }}?ver={{ $version }}">
 	<link rel="apple-touch-icon" sizes="72x72" href="{{ asset('img/favicon/apple-touch-icon-72x72.png') }}?ver={{ $version }}">
 	<link rel="apple-touch-icon" sizes="114x114" href="{{ asset('/img/favicon/apple-touch-icon-114x114.png') }}?ver={{ $version }}">
@@ -59,7 +61,7 @@
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
 				</button>
-				<a class="navbar-brand" href="/{{ App::getLocale() }}">{{$_SERVER['HTTP_HOST']}}</a>
+				<a class="navbar-brand" href="/{{ App::getLocale() }}">ЛОМБАРДИ.UA</a>
 			</div>
 			<div id="navbar" class="navbar-collapse collapse">
 				<ul class="nav navbar-nav navbar-right navbar-brand langs">
@@ -116,7 +118,7 @@
 		</div>
 		<div class="row">
 			<div class="col-lg-8 col-lg-offset-2 text-center m-t-lg m-b-lg">
-				<p><strong>&copy; 2017 {{$_SERVER['HTTP_HOST']}}</strong><br/> </p>
+				<p><strong>&copy; 2017 ЛОМБАРДИ.UA</strong><br/> </p>
 			</div>
 		</div>
 	</div>

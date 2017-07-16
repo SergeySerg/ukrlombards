@@ -112,7 +112,7 @@
                 @endforeach
             </div>
         </div>
-        <input type="hidden" id="lombard_logo_image" value="{{ $article->img ? $article->img : "upload/articles/no-img.png" }}">
+        <input type="hidden" id="lombard_logo_image" value="{{ $article->img ? $article->img : "img/frontend/no_img_map.png" }}">
     </section>
 
 @endsection

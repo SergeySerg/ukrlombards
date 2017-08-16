@@ -1,22 +1,52 @@
-<?php namespace App\Http\Controllers\Backend;
+<?php
+namespace App\Http\Controllers\Backend;
 
-use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
-use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
-use Illuminate\Http\Request;
 
 class ParserController extends Controller {
 
-    public function start() {
-        $dataPath     = public_path( 'data.csv' );
-        $saveFilePath = public_path( 'test.json' );
-        $pawnshopsIds = $this->getBranchesFromFile( $this->csvToArray( $dataPath, ';' ) );
-        $testPool = $pawnshopsIds;
 
-        $this->saveDataToFile($saveFilePath, $this->getSiteData($testPool));
+    /**
+     * @var
+     */
+    private $dataPath;
+    /**
+     * @var
+     */
+    private $saveFilePath;
+    /**
+     * @var array
+     */
+    private $parserSettings;
+    /**
+     * @var
+     */
+    private $log;
+    /**
+     * @var
+     */
+    private $limit;
+    private $getBranches;
+    public function __construct() {
+
+        $this->dataPath = public_path( 'data.csv' );
+        $this->saveFilePath = public_path( 'test.json' );
+        $this->parserSettings = [
+            'timeout' => 5,
+            'delay' => 3000,
+            'http_errors' => false,
+        ];
+        $this->getBranches = true; // true = разом з філіалами, false = без
+        $this->log = true; //if true -> DD, false = to file
+        $this->limit = 10; //parsing limit
+    }
+    public function start() {
+        $pawnshopsIds = $this->getBranchesFromFile( $this->csvToArray( $this->dataPath, ';' ) );
+        $testPool = $pawnshopsIds->take($this->limit);
+        $this->saveDataToFile($this->saveFilePath, $this->getSiteData($testPool),$this->log);
         return 'done';
     }
     private function getBranchesFromFile( $dataArray ) {
@@ -58,11 +88,7 @@ class ParserController extends Controller {
     private function getSiteData($ids, $type = 6 ) {
         $client = new Client();
 
-        $guzzleClient = new GuzzleClient(array(
-            'timeout' => 5,
-            'delay' => 3000,
-            'http_errors' => false,
-        ));
+        $guzzleClient = new GuzzleClient($this->parserSettings);
         $client->setClient($guzzleClient);
 
         $crawler            = $client->request( 'GET', 'http://www.kis.nfp.gov.ua' );
@@ -89,7 +115,7 @@ class ParserController extends Controller {
         $shop         = $crawler->filter( '.t11ReportsRegion100Width .grid td' );
 
         if ( $shop ) {
-            $shop->each( function ( Crawler $node, $i ) use ( &$pawnshopData ) {
+            $shop->each( function ( Crawler $node ) use ( &$pawnshopData ) {
                 if ( $node->filter( 'a' )->count() ) {
                     $pawnshopData[$node->attr( 'headers' )] = 'http://www.kis.nfp.gov.ua' . $node->filter( 'a' )->attr( 'href' );
                     return;
@@ -101,9 +127,7 @@ class ParserController extends Controller {
                 }
                 $pawnshopData[$node->attr( 'headers' )] = $node->text();
             } );
-            if ( $this->isBranches( $pawnshopData ) ) {
-                //if ( false) {
-                sleep( 1);
+            if ( $this->isBranches( $pawnshopData ) || $this->getBranches == true ) {
                 $branch_url                   = $this->getBranchFromPawnshop( $pawnshopData );
                 $pawnshopData['filials_data'] = $this->getPawnshopBranch( $branch_url );
             }
@@ -113,23 +137,19 @@ class ParserController extends Controller {
         return null;
 
     }
-    private function isBranches( Collection $pawnshopData ) {
+    private function isBranches($pawnshopData ) {
         if ( ! empty( $this->getBranchFromPawnshop( $pawnshopData ) ) ) {
             return true;
         }
 
         return false;
     }
-    private function getBranchFromPawnshop( Collection $pawnshopData ) {
+    private function getBranchFromPawnshop($pawnshopData ) {
         return $pawnshopData->get( 'FILIALS' );
     }
     private function getPawnshopBranch( $url ) {
         $client = new Client();
-        $guzzleClient = new GuzzleClient(array(
-            'timeout' => 5,
-            'delay' => 3000,
-            'http_errors' => false,
-        ));
+        $guzzleClient = new GuzzleClient($this->parserSettings);
         $client->setClient($guzzleClient);
 
         $crawler  = $client->request( 'GET', $url );
@@ -162,7 +182,10 @@ class ParserController extends Controller {
         }
         return null;
     }
-    private function saveDataToFile($filePath,$data){
+    private function saveDataToFile($filePath,$data,$log = false){
+        if($log){
+            dd($data);
+        }
         $fp = fopen($filePath, 'w');
         fwrite($fp,json_encode($data,256));
         fclose($fp);

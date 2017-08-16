@@ -10,7 +10,7 @@
 | and give it the controller to call when that URI is requested.
 |
 */
-Route:get('api/parsing/start','Backend\ParserController@start');
+Route:get('api/parser/start','Backend\ParserController@start');
 Route::get('home', 'HomeController@index');//Для відображення результата після логування
 
 /*Auth group routes*/

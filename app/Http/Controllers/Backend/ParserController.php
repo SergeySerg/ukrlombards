@@ -7,31 +7,28 @@ use App\Models\ParsedData;
 use Carbon\Carbon;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
+use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ParserController extends Controller
 {
 
     private $dataPath;
-    private $saveFilePath;
     private $parserSettings;
     private $log;
-    private $limit;
     private $getBranches;
-    private $saveToFile;
+
+
     public function __construct()
     {
         $this->dataPath = public_path('data.csv');
-        $this->saveFilePath = public_path('test.json');
         $this->parserSettings = [
             'timeout'     => 10,
-            'delay'       => rand(2000, 3000),
+            'delay'       => rand(3000, 4000),
             'http_errors' => false,
         ];
         $this->getBranches = true; // true = разом з філіалами, false = без
         $this->log = false; //if true -> dd($result), false = to file
-        $this->limit = 10; //parsing limit
-        $this->saveToFile = false; //false == DB, TRUE ==file
     }
     public function start()
     {
@@ -43,21 +40,20 @@ class ParserController extends Controller
             }
         );
 
-        dd([
-            'сохранено' => count($checkData),
-            'в файле' => count($pawnshopsIds),
-            'new' => count($pawnshopsIds->diff($checkData)),
-        ]);
-        $testPool = $pawnshopsIds->take($this->limit);
-        $testPool = $pawnshopsIds->diff($checkData);
-        if ($this->saveToFile) {
-            $this->saveDataToFile($this->saveFilePath, $this->getSiteData($testPool), $this->log);
-        } else {
-            $this->getSiteData($testPool);
-        }
+        $this->getSiteData( $pawnshopsIds->diff($checkData));
 
-        return 'done';
+        dd([
+            'Зарисів у файлі' => count($pawnshopsIds),
+            'Всього записів' => count($checkData),
+            'Нових\Не оброблених' => count($pawnshopsIds->diff($checkData)),
+        ]);
     }
+
+    /** Дістаємо "Код за ЄДРПОУ" з csv файлу
+     *
+     * @param array $dataArray
+     * @return Collection
+     */
     private function getBranchesFromFile($dataArray)
     {
         return collect($dataArray)->filter(
@@ -71,6 +67,13 @@ class ParserController extends Controller
         );
 
     }
+
+    /** Відкриваємо і розпаршуємо файл, для подальшої роботи
+     *
+     * @param string $filename
+     * @param string $delimiter
+     * @return array|bool
+     */
     private function csvToArray($filename = '', $delimiter = ',')
     {
         function utf8_fopen_read($fileName)
@@ -101,6 +104,13 @@ class ParserController extends Controller
 
         return $data;
     }
+
+    /** Тіло  Парсингу данних з сайту
+     *
+     * @param $ids
+     * @param int $type
+     * @return array|Collection|null
+     */
     private function getSiteData($ids, $type = 6)
     {
         $client = new Client();
@@ -126,7 +136,7 @@ class ParserController extends Controller
             );
             if ($siteData) {
                 $pawnshopsInfo = $this->getPawnshop($siteData);
-                $this->saveDataToDB($pawnshopsInfo,false);
+                $this->saveDataToDB($pawnshopsInfo);
             }
 
 
@@ -134,6 +144,12 @@ class ParserController extends Controller
 
         return $pawnshopsInfo;
     }
+
+    /** Виокремлення Ломбарду, якщо потрібно - вмикання пошуку філіалів
+     *
+     * @param Crawler $crawler
+     * @return Collection|null
+     */
     private function getPawnshop(Crawler $crawler)
     {
         $pawnshopData = collect([]);
@@ -168,8 +184,13 @@ class ParserController extends Controller
         }
 
         return null;
-
     }
+
+    /** Перевірка на існування філіалу на сторінці Ломбарду
+     *
+     * @param Collection $pawnshopData
+     * @return bool
+     */
     private function isBranches($pawnshopData)
     {
         if (!empty($this->getBranchFromPawnshop($pawnshopData))) {
@@ -178,10 +199,21 @@ class ParserController extends Controller
 
         return false;
     }
+
+    /** Дістати посилання на філіал з тіла відпарсенного матеріалу
+     *
+     * @param Collection $pawnshopData
+     * @return mixed
+     */
     private function getBranchFromPawnshop($pawnshopData)
     {
         return $pawnshopData->get('FILIALS');
     }
+
+    /** Запит на отримання данних з філіалів
+     * @param string $url
+     * @return Collection|null
+     */
     private function getPawnshopBranch($url)
     {
         $client = new Client();
@@ -227,16 +259,13 @@ class ParserController extends Controller
 
         return null;
     }
-    private function saveDataToFile($filePath, $data, $log = false)
-    {
-        if ($log) {
-            dd($data);
-        }
-        $fp = fopen($filePath, 'w');
-        fwrite($fp, json_encode($data, 256));
-        fclose($fp);
-    }
-    private function saveDataToDB($data, $log = false)
+
+
+    /**
+     * Збереження результатів парсингу в Базу
+     * @param Collection $data
+     */
+    private function saveDataToDB($data)
     {
         $newPawnshopData = new ParsedData();
         foreach ($data as $key => $value) {
@@ -278,4 +307,14 @@ class ParserController extends Controller
             }
         }
     }
+
+    /*private function saveDataToFile($filePath, $data, $log = false)
+    {
+        if ($log) {
+            dd($data);
+        }
+        $fp = fopen($filePath, 'w');
+        fwrite($fp, json_encode($data, 256));
+        fclose($fp);
+    }*/
 }

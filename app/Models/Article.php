@@ -22,7 +22,7 @@ class Article extends Translate {
         'active',
         'date'
     ];
-
+    //TODO:: взнати про append
     public function category(){
         return $this->belongsTo('App\Models\Category');
     }

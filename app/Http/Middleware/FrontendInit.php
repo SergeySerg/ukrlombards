@@ -23,6 +23,7 @@ class FrontendInit {
 	 */
 	public function handle($request, Closure $next)
 	{
+
 		// Get current lang object from db
 		$currentLang = Lang::where('lang', $request->lang)
 			->first();
@@ -31,6 +32,9 @@ class FrontendInit {
 			abort('404');
 		}
 		$langs = Lang::activelangs()->orderBy('priority','desc')->get()/**/;
+
+		//TODO: об'єднати верхні 2 запроси в один. Спочатку взяти всі активні мови, а потім порівнювати.
+
 		// Locale setting
 		App::setLocale($request->lang);
 		$texts = new Text();
@@ -39,6 +43,7 @@ class FrontendInit {
 		$categories_data = [];
 		foreach($categories as $category){
 			//create arr for categories with type
+            //TODO: Link == type ?
 			$categories_data[$category->link] = $category;
 			if($category->link == 'page'){
 				$static_page = $category

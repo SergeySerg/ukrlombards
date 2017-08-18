@@ -5,19 +5,17 @@ namespace App\Http\Controllers\Backend;
 use App\Http\Controllers\Controller;
 use App\Models\ParsedData;
 use Carbon\Carbon;
+use Illuminate\Support\Collection;
 use Goutte\Client;
 use GuzzleHttp\Client as GuzzleClient;
-use Illuminate\Support\Collection;
 use Symfony\Component\DomCrawler\Crawler;
 
 class ParserController extends Controller
 {
 
     private $dataPath;
-    private $parserSettings;
-    private $log;
-    private $getBranches;
-
+    private $parserSettings; //timeout - час у секундах до розірвання з'єднання. delay - мс. затримка між запиатами
+    private $getBranches; // true = разом з філіалами, false = без
 
     public function __construct()
     {
@@ -27,8 +25,7 @@ class ParserController extends Controller
             'delay'       => rand(3000, 4000),
             'http_errors' => false,
         ];
-        $this->getBranches = true; // true = разом з філіалами, false = без
-        $this->log = false; //if true -> dd($result), false = to file
+        $this->getBranches = true;
     }
     public function start()
     {
@@ -42,21 +39,21 @@ class ParserController extends Controller
 
         $this->getSiteData( $pawnshopsIds->diff($checkData));
 
-        dd([
+        return [
             'Зарисів у файлі' => count($pawnshopsIds),
             'Всього записів' => count($checkData),
             'Нових\Не оброблених' => count($pawnshopsIds->diff($checkData)),
-        ]);
+        ];
     }
 
-    /** Дістаємо "Код за ЄДРПОУ" з csv файлу
-     *
-     * @param array $dataArray
+    /**
+     * Дістаємо "Код за ЄДРПОУ" з csv файлу
+     * @param Collection $dataArray
      * @return Collection
      */
     private function getBranchesFromFile($dataArray)
     {
-        return collect($dataArray)->filter(
+        return $dataArray->filter(
             function ($node) {
                 return $node['Тип установи'] == 'Ломбард';
             }
@@ -68,11 +65,11 @@ class ParserController extends Controller
 
     }
 
-    /** Відкриваємо і розпаршуємо файл, для подальшої роботи
-     *
+    /**
+     * Відкриваємо і розпаршуємо файл, для подальшої роботи
      * @param string $filename
      * @param string $delimiter
-     * @return array|bool
+     * @return Collection|bool
      */
     private function csvToArray($filename = '', $delimiter = ',')
     {
@@ -90,7 +87,7 @@ class ParserController extends Controller
             return false;
         }
         $header = null;
-        $data = array();
+        $data = collect([]);
         if (($handle = utf8_fopen_read($filename)) !== false) {
             while (($row = fgetcsv($handle, 1000, $delimiter)) !== false) {
                 if (!$header) {
@@ -105,11 +102,11 @@ class ParserController extends Controller
         return $data;
     }
 
-    /** Тіло  Парсингу данних з сайту
-     *
+    /**
+     *Тіло  Парсингу данних з сайту
      * @param $ids
      * @param int $type
-     * @return array|Collection|null
+     * @return Collection|null
      */
     private function getSiteData($ids, $type = 6)
     {
@@ -123,7 +120,7 @@ class ParserController extends Controller
         $_viewStateGenerate = $crawler->filter('#__VIEWSTATEGENERATOR')->attr('value');
         $form = $crawler->selectButton('Пошук')->form();
 
-        $pawnshopsInfo = [];
+        $pawnshopsInfo = collect([]);
         foreach ($ids as $pawnshopCode) {
             $siteData = $client->submit(
                 $form,
@@ -138,15 +135,13 @@ class ParserController extends Controller
                 $pawnshopsInfo = $this->getPawnshop($siteData);
                 $this->saveDataToDB($pawnshopsInfo);
             }
-
-
         }
 
         return $pawnshopsInfo;
     }
 
-    /** Виокремлення Ломбарду, якщо потрібно - вмикання пошуку філіалів
-     *
+    /**
+     * Виокремлення Ломбарду, якщо потрібно - вмикання пошуку філіалів
      * @param Crawler $crawler
      * @return Collection|null
      */
@@ -186,8 +181,8 @@ class ParserController extends Controller
         return null;
     }
 
-    /** Перевірка на існування філіалу на сторінці Ломбарду
-     *
+    /**
+     * Перевірка на існування філіалу на сторінці Ломбарду
      * @param Collection $pawnshopData
      * @return bool
      */
@@ -200,17 +195,18 @@ class ParserController extends Controller
         return false;
     }
 
-    /** Дістати посилання на філіал з тіла відпарсенного матеріалу
-     *
+    /**
+     * Дістати посилання на філіал з тіла відпарсенного матеріалу
      * @param Collection $pawnshopData
-     * @return mixed
+     * @return string
      */
     private function getBranchFromPawnshop($pawnshopData)
     {
         return $pawnshopData->get('FILIALS');
     }
 
-    /** Запит на отримання данних з філіалів
+    /**
+     * Запит на отримання данних з філіалів
      * @param string $url
      * @return Collection|null
      */
@@ -259,7 +255,6 @@ class ParserController extends Controller
 
         return null;
     }
-
 
     /**
      * Збереження результатів парсингу в Базу

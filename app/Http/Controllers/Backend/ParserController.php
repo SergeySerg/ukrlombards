@@ -252,7 +252,7 @@ class ParserController extends Controller
         }
         $newPawnshopData->parsed_at = Carbon::now();
         $newPawnshopData->save();
-        if ($data['FILIALS'] != null) {   //if($pawnshop->contains('filials_data') && !empty($pawnshop['filials_data'])){
+        if ($data['FILIALS'] != null) {
             foreach ($data['filials_data'] as $branch) {
                 $newBranchData = new ParsedData();
                 foreach ($branch as $child_key => $child_value) {
@@ -276,15 +276,17 @@ class ParserController extends Controller
     }
     public function transferData()
     {
-        $data = ParsedData::whereNull('parent_id')->get()->take(3);
-
-
-//        $art = Article::find(57);
+        $data = ParsedData::whereNull('parent_id')->get();
+//        $art = Article::find(69);
 //        dd(json_decode((string)$art->attributes));
 
         foreach ($data as $pawnshop) {
-            //pawnshop
+            if (Article::where('title', $pawnshop->IAN_FULL_NAME.'@|;')->first()) {
+                continue;
+            }
+
             $newPawnshopArticle = new Article();
+
             $fields = [
                 "Код ЄДРПОУ"                     => $pawnshop->IM_NUMIDENT,
                 "Серія свідоцтва про реєстрацію" => $pawnshop->IAN_RO_SERIA,
@@ -293,41 +295,69 @@ class ParserController extends Controller
                 "E-mail"                         => $pawnshop->IAN_EMAIL,
                 'Міжміський телефонний код'      => $pawnshop->IA_PHONE_CODE,
                 "Телефон"                        => $pawnshop->IA_PHONE,
-                "Логотип"                        => $pawnshop->IA_PHONE,
-                "Адреса"                         => $pawnshop->F_ADR.'@|;',
-                "Область"                        => $pawnshop->IND_OBL.'@|;',
-                "Керівник"                       => $pawnshop->K_NAME.'@|;',
+                "Логотип"                        => '',
+                "Адреса"                         => $pawnshop->F_ADR.'@|;'.$pawnshop->F_ADR.'@|;',
+                "Область"                        => $pawnshop->IND_OBL.'@|;'.$pawnshop->IND_OBL.'@|;',
+                "Керівник"                       => $pawnshop->K_NAME.'@|;'.$pawnshop->K_NAME.'@|;',
             ];
-            $newPawnshopArticle->attributes = json_encode($fields);
-            $newPawnshopArticle->title = $pawnshop->IAN_FULL_NAME.'@|;';
-            $newPawnshopArticle->description = '@|;';
-            $newPawnshopArticle->description = '@|;';
 
+            $newPawnshopArticle->attributes = json_encode($fields);
+            $newPawnshopArticle->title = $pawnshop->IAN_FULL_NAME.'@|;'.$pawnshop->IAN_FULL_NAME.'@|;';
+            $newPawnshopArticle->description = '@|;';
+            $newPawnshopArticle->name = '';
+            $newPawnshopArticle->short_description = '@|;';
+            $newPawnshopArticle->meta_title = '@|;';
+            $newPawnshopArticle->meta_description = '@|;';
+            $newPawnshopArticle->meta_keywords = '@|;';
+            $newPawnshopArticle->img = '';
+            $newPawnshopArticle->imgs = '[]';
+            $newPawnshopArticle->files = '';
+            $newPawnshopArticle->priority = 0;
+            $newPawnshopArticle->active = true;
+            $newPawnshopArticle->date = Carbon::now()->format('Y-m-d H:i:s');
+            $newPawnshopArticle->category_id = 13;
+            $newPawnshopArticle->article_id = 0;
+            $newPawnshopArticle->save();
             if ($children = $pawnshop->children()->get()) {
-                //branch
-                dd($children);
+                foreach ($children as $branch) {
+                    if (Article::where('title', $branch->IAN_FULL_NAME.'@|;')->first()) {
+                        continue;
+                    }
+                    $newBranchArticle = new Article();
+                    $fields = [
+                        "Код ЄДРПОУ"                => $branch->IM_NUMIDENT,
+                        "Статус"                    => $branch->ST_NAME,
+                        'Міжміський телефонний код' => $branch->IA_PHONE_CODE,
+                        "Телефон"                   => $branch->IA_PHONE,
+                        "Відділення"                => '',
+                        "Адреса"                    => $branch->IA_FULL.'@|;'.$branch->IA_FULL.'@|;',
+                        "Область"                   => $branch->IND_OBL.'@|;'.$branch->IND_OBL.'@|;',
+                        "Керівник"                  => $branch->FIO.'@|;'.$branch->FIO.'@|;',
+                    ];
+                    $newBranchArticle->attributes = json_encode($fields);
+                    $newBranchArticle->title = $pawnshop->IAN_FULL_NAME.'@|;'.$pawnshop->IAN_FULL_NAME.'@|;';
+                    $newBranchArticle->description = '@|;';
+                    $newPawnshopArticle->name = '';
+                    $newBranchArticle->short_description = '@|;';
+                    $newBranchArticle->meta_title = '@|;';
+                    $newBranchArticle->meta_description = '@|;';
+                    $newBranchArticle->meta_keywords = '@|;';
+                    $newBranchArticle->img = '';
+                    $newBranchArticle->imgs = '[]';
+                    $newBranchArticle->files = '';
+                    $newBranchArticle->priority = 0;
+                    $newBranchArticle->active = true;
+                    $newBranchArticle->date = Carbon::now()->format('Y-m-d H:i:s');
+                    $newBranchArticle->category_id = 14;
+                    $newBranchArticle->article_id = $newPawnshopArticle->id;
+                    $newBranchArticle->save();
+                }
             }
         }
-        dd($data);
-        $newData = $data->map(function ($item) {
 
-            $fields = [
-                "Код ЄДРПОУ"                => $item->IM_NUMIDENT,
-                "Статус"                    => $item->ST_NAME,
-                'Міжміський телефонний код' => $item->IA_PHONE_CODE,
-                "Телефон"                   => $item->IA_PHONE,
-                "Відділення"                => 1234,
-                "Адреса"                    => $item->F_ADR.'@|;',
-                "Область"                   => 1234 .'@|;',
-                "Керівник"                  => $item->FIO.'@|;',
-            ];
-            $newArticle->attributes = json_encode($fields);
+        //dd($data);
 
-            return $newArticle;
-        });
-
-
-        return;
+        return 'transfered';
     }
 
     /*private function saveDataToFile($filePath, $data, $log = false)

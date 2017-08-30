@@ -10,12 +10,18 @@ use Illuminate\Database\Eloquent\Model;
  * @property string IM_NUMIDENT
  * @property string IAN_FULL_NAME
  */
-class ParsedData extends Model {
+class ParsedData extends Model
+{
 
-	protected $guarded =[];
+    protected $guarded = [];
 
 
-    public function filials_data() {
-        return $this->hasMany(ParsedData::class,'parent_id','id');
+    public function filials_data()
+    {
+        return $this->hasMany(ParsedData::class, 'parent_id', 'id');
+    }
+    public function children()
+    {
+        return $this->hasMany(ParsedData::class, 'parent_id', 'id');
     }
 }

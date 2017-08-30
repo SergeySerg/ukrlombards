@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Backend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Article;
 use App\Models\ParsedData;
 use Carbon\Carbon;
 use Illuminate\Support\Collection;
@@ -31,21 +32,18 @@ class ParserController extends Controller
     {
         $pawnshopsIds = $this->getBranchesFromFile($this->csvToArray($this->dataPath, ';'));
         $checkData = ParsedData::all();
-        $checkData = $checkData->map(
-            function ($item) {
-                return $item['IM_NUMIDENT'];
-            }
-        );
+        $checkData = $checkData->map(function ($item) {
+            return $item['IM_NUMIDENT'];
+        });
 
-        $this->getSiteData( $pawnshopsIds->diff($checkData));
+        $this->getSiteData($pawnshopsIds->diff($checkData));
 
         return [
-            'Зарисів у файлі' => count($pawnshopsIds),
-            'Всього записів' => count($checkData),
+            'Зарисів у файлі'     => count($pawnshopsIds),
+            'Всього записів'      => count($checkData),
             'Нових\Не оброблених' => count($pawnshopsIds->diff($checkData)),
         ];
     }
-
     /**
      * Дістаємо "Код за ЄДРПОУ" з csv файлу
      * @param Collection $dataArray
@@ -53,18 +51,13 @@ class ParserController extends Controller
      */
     private function getBranchesFromFile($dataArray)
     {
-        return $dataArray->filter(
-            function ($node) {
-                return $node['Тип установи'] == 'Ломбард';
-            }
-        )->map(
-            function ($node) {
-                return $node['Код за ЄДРПОУ'];
-            }
-        );
+        return $dataArray->filter(function ($node) {
+            return $node['Тип установи'] == 'Ломбард';
+        })->map(function ($node) {
+            return $node['Код за ЄДРПОУ'];
+        });
 
     }
-
     /**
      * Відкриваємо і розпаршуємо файл, для подальшої роботи
      * @param string $filename
@@ -101,7 +94,6 @@ class ParserController extends Controller
 
         return $data;
     }
-
     /**
      *Тіло  Парсингу данних з сайту
      * @param $ids
@@ -122,15 +114,12 @@ class ParserController extends Controller
 
         $pawnshopsInfo = collect([]);
         foreach ($ids as $pawnshopCode) {
-            $siteData = $client->submit(
-                $form,
-                [
-                    'p_EDRPOU'             => $pawnshopCode,
-                    'p_IRL_FT'             => $type,
-                    '__VIEWSTATE'          => $_viewState,
-                    '__VIEWSTATEGENERATOR' => $_viewStateGenerate,
-                ]
-            );
+            $siteData = $client->submit($form, [
+                'p_EDRPOU'             => $pawnshopCode,
+                'p_IRL_FT'             => $type,
+                '__VIEWSTATE'          => $_viewState,
+                '__VIEWSTATEGENERATOR' => $_viewStateGenerate,
+            ]);
             if ($siteData) {
                 $pawnshopsInfo = $this->getPawnshop($siteData);
                 $this->saveDataToDB($pawnshopsInfo);
@@ -139,7 +128,6 @@ class ParserController extends Controller
 
         return $pawnshopsInfo;
     }
-
     /**
      * Виокремлення Ломбарду, якщо потрібно - вмикання пошуку філіалів
      * @param Crawler $crawler
@@ -151,24 +139,20 @@ class ParserController extends Controller
         $shop = $crawler->filter('.t11ReportsRegion100Width .grid td');
 
         if ($shop) {
-            $shop->each(
-                function (Crawler $node) use (&$pawnshopData) {
-                    if ($node->filter('a')->count()) {
-                        $pawnshopData[$node->attr('headers')] = 'http://www.kis.nfp.gov.ua'.$node->filter('a')->attr(
-                                'href'
-                            );
+            $shop->each(function (Crawler $node) use (&$pawnshopData) {
+                if ($node->filter('a')->count()) {
+                    $pawnshopData[$node->attr('headers')] = 'http://www.kis.nfp.gov.ua'.$node->filter('a')->attr('href');
 
-                        return;
-                    }
-                    //Якщо філал без ссилки
-                    if ($node->attr('headers') == 'FILIALS' & !$node->filter('a')->count()) {
-                        $pawnshopData[$node->attr('headers')] = null;
-
-                        return;
-                    }
-                    $pawnshopData[$node->attr('headers')] = $node->text();
+                    return;
                 }
-            );
+                //Якщо філал без ссилки
+                if ($node->attr('headers') == 'FILIALS' & !$node->filter('a')->count()) {
+                    $pawnshopData[$node->attr('headers')] = null;
+
+                    return;
+                }
+                $pawnshopData[$node->attr('headers')] = $node->text();
+            });
 
             if ($this->isBranches($pawnshopData) && $this->getBranches == true) {
                 $branch_url = $this->getBranchFromPawnshop($pawnshopData);
@@ -180,7 +164,6 @@ class ParserController extends Controller
 
         return null;
     }
-
     /**
      * Перевірка на існування філіалу на сторінці Ломбарду
      * @param Collection $pawnshopData
@@ -194,7 +177,6 @@ class ParserController extends Controller
 
         return false;
     }
-
     /**
      * Дістати посилання на філіал з тіла відпарсенного матеріалу
      * @param Collection $pawnshopData
@@ -204,7 +186,6 @@ class ParserController extends Controller
     {
         return $pawnshopData->get('FILIALS');
     }
-
     /**
      * Запит на отримання данних з філіалів
      * @param string $url
@@ -220,42 +201,33 @@ class ParserController extends Controller
         $branches = collect([]);
         $getBranches = $crawler->filter('.zebra tr');
         if ($getBranches) {
-            $getBranches->each(
-                function (Crawler $node, $i) use (&$branches, &$branchesTableColumnNames) {
-                    if ($i === 0) {
-                        $node->filter('th')->each(
-                            function (Crawler $node, $i) use (&$branchesTableColumnNames) {
-                                $branchesTableColumnNames[$i] = $node->attr('id');
-                            }
-                        );
+            $getBranches->each(function (Crawler $node, $i) use (&$branches, &$branchesTableColumnNames) {
+                if ($i === 0) {
+                    $node->filter('th')->each(function (Crawler $node, $i) use (&$branchesTableColumnNames) {
+                        $branchesTableColumnNames[$i] = $node->attr('id');
+                    });
+
+                    return;
+                }
+                $branchItem = [];
+
+                $node->filter('td')->each(function (Crawler $node, $i) use (&$branchItem, $branchesTableColumnNames) {
+                    if ($node->filter('a')->count()) {
+                        $branchItem[$branchesTableColumnNames[$i]] = 'http://www.kis.nfp.gov.ua'.$node->filter('a')->attr('href');
 
                         return;
                     }
-                    $branchItem = [];
+                    $branchItem[$branchesTableColumnNames[$i]] = $node->text();
+                });
 
-                    $node->filter('td')->each(
-                        function (Crawler $node, $i) use (&$branchItem, $branchesTableColumnNames) {
-                            if ($node->filter('a')->count()) {
-                                $branchItem[$branchesTableColumnNames[$i]] = 'http://www.kis.nfp.gov.ua'.$node->filter(
-                                        'a'
-                                    )->attr('href');
-
-                                return;
-                            }
-                            $branchItem[$branchesTableColumnNames[$i]] = $node->text();
-                        }
-                    );
-
-                    $branches[] = $branchItem;
-                }
-            );
+                $branches[] = $branchItem;
+            });
 
             return $branches;
         }
 
         return null;
     }
-
     /**
      * Збереження результатів парсингу в Базу
      * @param Collection $data
@@ -301,6 +273,61 @@ class ParserController extends Controller
 
             }
         }
+    }
+    public function transferData()
+    {
+        $data = ParsedData::whereNull('parent_id')->get()->take(3);
+
+
+//        $art = Article::find(57);
+//        dd(json_decode((string)$art->attributes));
+
+        foreach ($data as $pawnshop) {
+            //pawnshop
+            $newPawnshopArticle = new Article();
+            $fields = [
+                "Код ЄДРПОУ"                     => $pawnshop->IM_NUMIDENT,
+                "Серія свідоцтва про реєстрацію" => $pawnshop->IAN_RO_SERIA,
+                "Номер свідоцтва про реєстрацію" => $pawnshop->IAN_RO_CODE,
+                "Статус"                         => $pawnshop->DIC_NAME,
+                "E-mail"                         => $pawnshop->IAN_EMAIL,
+                'Міжміський телефонний код'      => $pawnshop->IA_PHONE_CODE,
+                "Телефон"                        => $pawnshop->IA_PHONE,
+                "Логотип"                        => $pawnshop->IA_PHONE,
+                "Адреса"                         => $pawnshop->F_ADR.'@|;',
+                "Область"                        => $pawnshop->IND_OBL.'@|;',
+                "Керівник"                       => $pawnshop->K_NAME.'@|;',
+            ];
+            $newPawnshopArticle->attributes = json_encode($fields);
+            $newPawnshopArticle->title = $pawnshop->IAN_FULL_NAME.'@|;';
+            $newPawnshopArticle->description = '@|;';
+            $newPawnshopArticle->description = '@|;';
+
+            if ($children = $pawnshop->children()->get()) {
+                //branch
+                dd($children);
+            }
+        }
+        dd($data);
+        $newData = $data->map(function ($item) {
+
+            $fields = [
+                "Код ЄДРПОУ"                => $item->IM_NUMIDENT,
+                "Статус"                    => $item->ST_NAME,
+                'Міжміський телефонний код' => $item->IA_PHONE_CODE,
+                "Телефон"                   => $item->IA_PHONE,
+                "Відділення"                => 1234,
+                "Адреса"                    => $item->F_ADR.'@|;',
+                "Область"                   => 1234 .'@|;',
+                "Керівник"                  => $item->FIO.'@|;',
+            ];
+            $newArticle->attributes = json_encode($fields);
+
+            return $newArticle;
+        });
+
+
+        return;
     }
 
     /*private function saveDataToFile($filePath, $data, $log = false)

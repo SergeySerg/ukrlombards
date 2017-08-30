@@ -11,6 +11,7 @@
 |
 */
 Route::get('api/parser/start','Backend\ParserController@start');
+Route::get('api/parser/transferData', 'Backend\ParserController@transferData');
 Route::get('home', 'HomeController@index');//Для відображення результата після логування
 
 /*Auth group routes*/
